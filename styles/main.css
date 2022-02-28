@@ -1,0 +1,86 @@
+:root {
+    /* sizes */
+    --input-size: 50px;
+
+    /* main colors */
+    --text-color: rgba(255, 255, 255, 0.9);
+    --text-color--disabled: rgba(255, 255, 255, 0.5);
+    --shadow-color: rgba(0, 0, 0, .2);
+
+    /* colors */
+    --purple-color: rgb(120, 40, 205);
+    --orange-color: rgb(220, 125, 5);
+    --green-color: rgb(125, 160, 20);
+    --pink-color: rgb(215, 70, 105);
+    --gray-color: rgb(130, 130, 130);
+}
+
+html {
+    display: flex;
+    min-height: 100%;
+}
+
+body {
+    flex-grow: 1;
+    display: flex;
+    padding: 0;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--purple-color);
+}
+
+/* main block */
+#gameContainer {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#gameLayout {
+    background: rgba(0, 0, 0, .2);
+    padding: 20px;
+}
+
+#overlapLayout {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    font-size: 150%;
+    z-index: 1;
+    transition: all 1s;
+}
+
+#overlapInfo {
+    display: none;
+    font-size: 140%;
+    margin-bottom: 10px;
+    color: #fff;
+    text-shadow: 0 0 10px var(--purple-color);
+    justify-content: center;
+    align-items: center;
+}
+
+.layout {
+    position: absolute;
+}
+
+.btn {
+    border: 0px;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin: 5px;
+    padding: 10px 20px;
+    font-size: 100%;
+    color: var(--text-color);
+    background: var(--orange-color);
+    border: 5px solid var(--shadow-color);
+    text-shadow: -1px -1px 0px var(--shadow-color);
+    transition: all 0.5s;
+}
+
+.btn:hover {
+    background: var(--green-color);
+}
+
