@@ -1,2 +1,2 @@
-# js-tetris
-Tetris
+# TETRIS
+Created in HTML5 + ES6+
