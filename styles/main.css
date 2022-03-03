@@ -1,69 +1,162 @@
 :root {
-    /* sizes */
-    --input-size: 50px;
-
-    /* main colors */
-    --text-color: rgba(255, 255, 255, 0.9);
-    --text-color--disabled: rgba(255, 255, 255, 0.5);
-    --shadow-color: rgba(0, 0, 0, .2);
+    --inner-shadow-color: rgba(0, 0, 0, .1);
+    --shadow-color: rgba(0, 0, 0, .8);
 
     /* colors */
-    --purple-color: rgb(120, 40, 205);
+    --purple-color: rgb(80, 35, 170);
     --orange-color: rgb(220, 125, 5);
     --green-color: rgb(125, 160, 20);
-    --pink-color: rgb(215, 70, 105);
-    --gray-color: rgb(130, 130, 130);
+
+    /* sizes */
+    --avatar-size: 50px;
 }
 
-html {
-    display: flex;
+html, body {
+    display: flex;  
+    justify-content: center;
+    align-items: center; 
+    padding: 0;
+    margin: 0;
+    min-width: 100%;  
     min-height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
-    flex-grow: 1;
-    display: flex;
-    padding: 0;
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: var(--purple-color);
+    color: #fff;
+    background: 
+        linear-gradient(45deg, var(--inner-shadow-color) 25%, transparent 25%, transparent 75%, var(--inner-shadow-color) 75%), 
+        linear-gradient(45deg, var(--inner-shadow-color) 25%, transparent 25%, transparent 75%, var(--inner-shadow-color) 75%) 0.2500em 0.2500em, 
+        radial-gradient(at 50% 50%, var(--purple-color), #111111);
+    background-size: 0.500em 0.500em, 0.500em 0.500em, 100% 100%;
 }
 
-/* main block */
-#gameContainer {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
+/* GAME CONTAINER */
 #gameLayout {
-    background: rgba(0, 0, 0, .2);
-    padding: 20px;
+    background: linear-gradient(rgba(0, 0, 0, .5), rgba(0, 0, 0, .2));
+    padding: 5px;
+    overflow: hidden;
 }
 
 #overlapLayout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    position: absolute;
     color: #fff;
-    font-size: 150%;
     z-index: 1;
-    transition: all 1s;
+    animation: show;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
+}
+
+#overlapLayout.hidden {
+    animation: fade;
+    animation-duration: 1s;
+    animation-fill-mode: forwards;
 }
 
 #overlapInfo {
-    display: none;
-    font-size: 140%;
+    font-size: 2em;
     margin-bottom: 10px;
     color: #fff;
-    text-shadow: 0 0 10px var(--purple-color);
-    justify-content: center;
+    text-shadow: 0px 3px 3px var(--shadow-color);
+}
+
+/* INFO CONTAINER */
+.preview-block {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(rgba(0, 0, 0, .5), rgba(0, 0, 0, .2) 200%);
+}
+
+.score-block {
+    white-space: nowrap;
+    margin: 20px;
+    font-size: 3em;
+    color: #fff;
+    text-shadow: 0px 3px 3px var(--shadow-color);
+}
+
+.description-block {
+    flex-grow: 1;
+}
+
+.key-block {
+    margin: 5px 0;
+}
+
+.key {
+    border: 3px solid rgb(255, 255, 255, 0.3);
+    font-size: 90%;
+    width: 30px;
+    height: 30px;
+    box-shadow: 0px 3px 3px var(--shadow-color);
+    text-shadow: 0px 3px 3px var(--shadow-color);
+}
+
+.key.key-text {
+    width: auto;
+    font-size: 120%;
+    padding: 0 5px;
+}
+
+.key-description {
+    flex-grow: 1;
+    padding: 5px;
     align-items: center;
 }
 
-.layout {
-    position: absolute;
+.key-description::before {
+    content: '—';
+    margin: 0 10px 0 5px;
+}
+
+.github-block {
+    flex-grow: 0;
+    align-items: center;
+}
+
+.user-avatar {
+    box-sizing: border-box;
+    width: var(--avatar-size);
+    height: var(--avatar-size);
+    border: 5px solid rgba(0, 0, 0, .2);
+    margin-right: 10px;
+}
+
+.user-avatar[src=""] {
+    /* empty image */
+    content:url("data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==");
+    border-radius: 50%;
+    border-top: 5px solid var(--green-color);
+    animation: spinner 0.5s linear infinite;
+}
+
+.repo-description {
+    font-size: 10pt;
+    margin: 2px 0;
+}
+
+/* TOOLS */
+.container {
+    background: rgba(0, 0, 0, .3);
+    padding: 25px;
+    gap: 25px;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex.flex-column {
+    flex-direction: column;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.align-center {
+    align-items: center;
 }
 
 .btn {
@@ -71,16 +164,22 @@ body {
     cursor: pointer;
     transition: all 0.3s;
     margin: 5px;
-    padding: 10px 20px;
-    font-size: 100%;
+    padding: 10px 30px;
+    font-size: 1.5em;
     color: var(--text-color);
-    background: var(--orange-color);
-    border: 5px solid var(--shadow-color);
-    text-shadow: -1px -1px 0px var(--shadow-color);
-    transition: all 0.5s;
+    background: var(--green-color);
+    border: 5px solid var(--inner-shadow-color);
+    transition: all 1s;
+    white-space: nowrap;
+    outline: none;
+    text-shadow: -1px -1px 0px var(--inner-shadow-color);
+    box-shadow: 0px 3px 3px var(--shadow-color);
 }
 
 .btn:hover {
-    background: var(--green-color);
+    background: var(--orange-color);
 }
 
+.link {
+    color: var(--green-color);
+}

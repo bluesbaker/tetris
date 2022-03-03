@@ -1,0 +1,34 @@
+@keyframes spinner {
+    0% { 
+        transform: rotate(0deg); 
+    }
+    100% { 
+        transform: rotate(360deg); 
+    }  
+}
+
+@keyframes fade {
+    0% {
+        opacity: 1;
+        z-index: auto;
+    }
+    50% {
+        scale: 1.2;
+        opacity: 0;
+    }
+    100% {
+        display: none;
+        z-index: -9999;
+        opacity: 0;
+    }
+}
+
+@keyframes show {
+    from {
+        scale: 0.8;
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
