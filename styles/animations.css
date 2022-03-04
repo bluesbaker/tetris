@@ -13,7 +13,7 @@
         z-index: auto;
     }
     50% {
-        scale: 1.2;
+        transform: scale(1.2);
         opacity: 0;
     }
     100% {
@@ -25,7 +25,7 @@
 
 @keyframes show {
     from {
-        scale: 0.8;
+        transform: scale(0.8);
         opacity: 0;
     }
     to {
