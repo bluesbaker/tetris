@@ -1,5 +1,6 @@
 import { figures } from './data/figures.js';
 import { colors } from './data/colors.js';
+import { Matrix } from './modules/Matrix.js';
 
 // elements
 const overlapLayout = document.getElementById('overlapLayout');
@@ -16,25 +17,26 @@ const cellSize = (gameLayout.width / 10);
 let gameMap = [];
 let nextFigure = [];
 let currentFigure = [];
-let offsetX = 0;
-let offsetY = 0;
+let figureOffsetX = 0;
+let figureOffsetY = 0;
 let gameId = null;
 
 // inputs
 newGameButton.addEventListener('mouseup', startGame);
 
 function drawMap() {
-  let tempMap = mixMatrix(gameMap, currentFigure, offsetX, offsetY);
+  let tempMap = gameMap.clone();
+  tempMap.mix(currentFigure.matrix, figureOffsetX, figureOffsetY);
 
   // draw map
-  drawMatrix(gameContext, tempMap, cellSize, colors);
+  drawMatrix(gameContext, tempMap.matrix, cellSize, colors);
 }
 
 function drawPreview() {
-  previewLayout.width = cellSize * nextFigure[0].length;
-  previewLayout.height = cellSize * nextFigure.length;
-
-  drawMatrix(previewContext, nextFigure, cellSize, colors);
+  previewLayout.width = cellSize * nextFigure.matrix[0].length;
+  previewLayout.height = cellSize * nextFigure.matrix.length;
+  
+  drawMatrix(previewContext, nextFigure.matrix, cellSize, colors);
 }
 
 function drawMatrix(context, matrix, cellSize, colors) {
@@ -64,35 +66,10 @@ function drawMatrix(context, matrix, cellSize, colors) {
   context.fill();
 }
 
-function rotateFigure(figure, quantity = 0) {
-  let figureVertical = figure.length;
-  let figureHorizontal = figure[0].length;
-
-  // create a new array - H->V and V->H
-  let rotatedFigure = new Array(figureHorizontal);
-  for(let y = 0; y < rotatedFigure.length; y++) {
-    rotatedFigure[y] = new Array(figureVertical);
-  }
-
-  // rotate figure
-  for(let y = 0; y < figureVertical; y++) {
-    for(let x = 0; x < figureHorizontal; x++) {
-      // reflect figure
-      rotatedFigure[x][figureVertical-1-y] = figure[y][x];
-    }
-  }
-
-  if(quantity > 0) {
-    rotatedFigure = rotateFigure(rotatedFigure, --quantity);
-  }
-
-  return rotatedFigure;
-}
-
 function moveFigure(x = 0, y = 0) {
-  if(!checkCollision(gameMap, currentFigure, offsetX + x, offsetY + y)) {
-    offsetX += x;
-    offsetY += y;
+  if(!gameMap.collision(currentFigure.matrix, figureOffsetX + x, figureOffsetY + y)) {
+    figureOffsetX += x;
+    figureOffsetY += y;
     drawMap();
     return true;
   }
@@ -103,8 +80,8 @@ function moveFigure(x = 0, y = 0) {
 
 function checkLines() {
   let lines = [];
-  for(let y = 0; y < gameMap.length; y++) {
-    if(gameMap[y].filter(i => i != 0).length === gameMap[0].length) {
+  for(let y = 0; y < gameMap.matrix.length; y++) {
+    if(gameMap.matrix[y].filter(i => i != 0).length === gameMap.matrix[0].length) {
       lines.push(y);
     }
   }
@@ -113,79 +90,16 @@ function checkLines() {
 
 function removeLines(lines) {
   for(let i = 0; i < lines.length; i++) {
-    gameMap.splice(lines[i], 1);
-    gameMap.unshift(gameMap[0]);
+    gameMap.matrix.splice(lines[i], 1);
+    gameMap.matrix.unshift(gameMap.matrix[0]);
   }
 }
 
 function getFigure(figures, colors) {
-  let figureindex = Math.floor(Math.random() * figures.length);
-  let colorIndex = Math.floor(Math.random() * colors.length);
-  let figure = figures[figureindex];
-
-  // colorize figure
-  for(let y = 0; y < figure.length; y++) {
-    for(let x = 0; x < figure[y].length; x++) {
-      if(figure[y][x] != 0) {
-        figure[y][x] = colors[colorIndex].marker;
-      }
-    }
-  }
-
-  return figure;
-}
-
-function getMatrix(xSize, ySize, symbol = 0) {
-  let map = new Array(ySize);
-  for(let y = 0; y < map.length; y++) {
-    map[y] = new Array(xSize);
-    for(let x = 0; x < map[y].length; x++) {
-      map[y][x] = symbol;
-    }
-  }
-  return map;
-}
-
-function mixMatrix(matrixA, matrixB, offsetX, offsetY) {
-  let mixedMatrix = new Array(matrixA.length);
-  for(let y = 0; y < matrixA.length; y++) {
-    mixedMatrix[y] = new Array(matrixA[y].length);
-    for(let x = 0; x < matrixA[y].length; x++) {
-      mixedMatrix[y][x] = matrixA[y][x];
-    }
-  }
-
-  for(let y = 0; y < matrixB.length; y++) {
-    for(let x = 0; x < matrixB[y].length; x++) {
-      let xPosition = x + offsetX;
-      let yPosition = y + offsetY;
-
-      if(matrixB[y][x] > 0) {
-        mixedMatrix[yPosition][xPosition] = matrixB[y][x];
-      }
-    }
-  }
-
-  return mixedMatrix;
-}
-
-function checkCollision(matrixA, matrixB, offsetX, offsetY) {
-  for(let y = 0; y < matrixB.length; y++) {
-    for(let x = 0; x < matrixB[y].length; x++) {
-      let xPosition = x + offsetX;
-      let yPosition = y + offsetY;
-
-      if(matrixB[y][x] > 0) {
-        if(matrixA[yPosition] == null 
-        || matrixA[yPosition][xPosition] == null 
-        || matrixA[yPosition][xPosition] != 0) {
-            return true;
-        }
-      }
-    }
-  }
-
-  return false;
+  let randomFigure = figures[Math.floor(Math.random() * figures.length)];
+  let randomColor = colors[Math.floor(Math.random() * colors.length)].marker;
+  let figureMatrix = new Matrix(randomFigure, randomColor);
+  return figureMatrix;
 }
 
 function gameLoop() {
@@ -195,18 +109,23 @@ function gameLoop() {
 
   if(!isUpdated) {
     // fix current map
-    gameMap = mixMatrix(gameMap, currentFigure, offsetX, offsetY);
+    gameMap.mix(currentFigure.matrix, figureOffsetX, figureOffsetY);
 
     // update figure
-    currentFigure = nextFigure;
-    nextFigure = rotateFigure(getFigure(figures, colors), Math.floor(Math.random() * 3));
+    currentFigure = nextFigure.clone();
+    nextFigure = getFigure(figures, colors);
+
+    // rotate random
+    while(!!Math.floor(Math.random() * 2)) {
+      nextFigure.rotate();
+    }
 
     // reset offsets
-    offsetX = Math.floor((gameMap[0].length / 2) - (currentFigure[0].length / 2));
-    offsetY = 0;
+    figureOffsetX = Math.floor((gameMap.matrix[0].length / 2) - (currentFigure.matrix[0].length / 2));
+    figureOffsetY = 0;
 
     // if a new figure collides, then "game over"
-    if(checkCollision(gameMap, currentFigure, offsetX, offsetY)) {
+    if(gameMap.collision(currentFigure.matrix, figureOffsetX, figureOffsetY)) {
       isGameOver = true;
     }
   }
@@ -238,11 +157,12 @@ function gameLoop() {
 function startGame(event) {
   if(gameId === null) {
     // reset game properties
-    gameMap = getMatrix(10, 20);
+    gameMap = new Matrix(10, 20);
     nextFigure = getFigure(figures, colors);
     currentFigure = getFigure(figures, colors);
-    offsetX = Math.floor((gameMap[0].length / 2) - (currentFigure[0].length / 2));
-    offsetY = 0;
+
+    figureOffsetX = Math.floor((gameMap.matrix[0].length / 2) - (currentFigure.matrix[0].length / 2));
+    figureOffsetY = 0;
     score.innerText = 0;
 
     // hide overlap
@@ -261,28 +181,30 @@ function startGame(event) {
 }
 
 function controlListener(event) {
-  switch(event.key) {
-    case 'ArrowLeft':
+  switch(event.keyCode) {
+    // left
+    case 37:
       moveFigure(-1);
       break;
-
-    case 'ArrowRight':
+    // right
+    case 39:
       moveFigure(1);
       break;
-
-    case 'ArrowDown':  
+    // down
+    case 40:  
       moveFigure(0, 1);
       break;
-
-    case ' ':
-      let rotatedFigure = rotateFigure(currentFigure);
+    // space
+    case 32:
+      let rotatedFigure = currentFigure.clone().rotate();
       let fixedX = 0;
-      if(offsetX >= Math.floor(gameMap[0].length / 2)) {
-        fixedX = rotatedFigure[0].length - currentFigure[0].length;
+
+      if(figureOffsetX >= Math.floor(gameMap.matrix[0].length / 2)) {
+        fixedX = rotatedFigure.matrix[0].length - currentFigure.matrix[0].length;
       }
 
-      if(!checkCollision(gameMap, rotatedFigure, offsetX - fixedX, offsetY)) {
-        offsetX -= fixedX;
+      if(!gameMap.collision(rotatedFigure.matrix, figureOffsetX - fixedX, figureOffsetY)) {
+        figureOffsetX -= fixedX;
         currentFigure = rotatedFigure;
         drawMap();
         break;
