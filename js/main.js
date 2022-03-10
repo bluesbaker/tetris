@@ -6,15 +6,18 @@ import { Matrix } from './modules/Matrix.js';
 const overlapLayout = document.getElementById('overlapLayout');
 const overlapInfo = document.getElementById('overlapInfo');
 const newGameButton = document.getElementById('newGameButton');
-const gameLayout = document.getElementById('game');
-const gameContext = gameLayout.getContext('2d');
+const gameCanvas = document.getElementById('gameCanvas');
+const gameContext = gameCanvas.getContext('2d');
+const figureCanvas = document.getElementById('figureCanvas');
+const figureContext = figureCanvas.getContext('2d');
 const previewLayout = document.getElementById('preview');
 const previewContext = previewLayout.getContext('2d');
 const score = document.getElementById('score');
-const cellSize = (gameLayout.width / 10);
+const cellSize = (gameCanvas.width / 10);
 
 // game properties
 let gameMap = [];
+let figureMap = [];
 let nextFigure = [];
 let currentFigure = [];
 let figureOffsetX = 0;
@@ -25,11 +28,13 @@ let gameId = null;
 newGameButton.addEventListener('mouseup', startGame);
 
 function drawMap() {
-  let tempMap = gameMap.clone();
-  tempMap.mix(currentFigure.matrix, figureOffsetX, figureOffsetY);
-
   // draw map
-  drawMatrix(gameContext, tempMap.matrix, cellSize, colors);
+  drawMatrix(gameContext, gameMap.matrix, cellSize, colors);
+}
+
+function drawFigure() {
+  figureMap.init(10, 20).mix(currentFigure.matrix, figureOffsetX, figureOffsetY);
+  drawMatrix(figureContext, figureMap.matrix, cellSize, colors);
 }
 
 function drawPreview() {
@@ -58,19 +63,13 @@ function drawMatrix(context, matrix, cellSize, colors) {
       }
     }
   }
-
-  // shadows
-  context.shadowColor = "rgb(0, 0, 0, 0.3)";
-  context.shadowBlur = 5;
-  context.shadowOffsetY = 5;
-  context.fill();
 }
 
 function moveFigure(x = 0, y = 0) {
   if(!gameMap.collision(currentFigure.matrix, figureOffsetX + x, figureOffsetY + y)) {
     figureOffsetX += x;
     figureOffsetY += y;
-    drawMap();
+    drawFigure();
     return true;
   }
   else {
@@ -109,7 +108,7 @@ function gameLoop() {
 
   if(!isUpdated) {
     // fix current map
-    gameMap.mix(currentFigure.matrix, figureOffsetX, figureOffsetY);
+    gameMap.mix(figureMap.matrix);
 
     // update figure
     currentFigure = nextFigure.clone();
@@ -128,6 +127,8 @@ function gameLoop() {
     if(gameMap.collision(currentFigure.matrix, figureOffsetX, figureOffsetY)) {
       isGameOver = true;
     }
+
+    drawMap();
   }
 
   // if "game over" then...
@@ -146,9 +147,12 @@ function gameLoop() {
   // or continue game
   else {
     let lines = checkLines();
-    removeLines(lines);
-    score.innerText = +score.innerText + (lines.length * 5);
-    drawMap();
+    if(lines.length > 0) {
+      removeLines(lines);
+      score.innerText = +score.innerText + (lines.length * 5);
+      drawMap();
+    }
+    drawFigure();
     drawPreview();
   }
 }
@@ -158,6 +162,7 @@ function startGame(event) {
   if(gameId === null) {
     // reset game properties
     gameMap = new Matrix(10, 20);
+    figureMap = new Matrix(10, 20);
     nextFigure = getFigure(figures, colors);
     currentFigure = getFigure(figures, colors);
 
@@ -173,10 +178,11 @@ function startGame(event) {
 
     // draw main matrix
     drawMap();
+    drawFigure();
     drawPreview();
 
     // ...and start game
-    gameId = setInterval(gameLoop, 500);
+    gameId = setInterval(gameLoop, 300);
   }
 }
 
@@ -206,7 +212,7 @@ function controlListener(event) {
       if(!gameMap.collision(rotatedFigure.matrix, figureOffsetX - fixedX, figureOffsetY)) {
         figureOffsetX -= fixedX;
         currentFigure = rotatedFigure;
-        drawMap();
+        drawFigure();
         break;
       }
       break;   

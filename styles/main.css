@@ -37,12 +37,23 @@ body {
     background: linear-gradient(rgba(0, 0, 0, .5), rgba(0, 0, 0, .2));
     padding: 5px;
     overflow: hidden;
+    width: 300px;
+    height: 600px;
+}
+
+#gameCanvas, #figureCanvas {
+    position: absolute;
+    z-index: 1;
+}
+
+#figureCanvas {
+    z-index: 0;
 }
 
 #overlapLayout {
     position: absolute;
     color: #fff;
-    z-index: 1;
+    z-index: 10;
     animation: show;
     animation-duration: 1s;
     animation-fill-mode: forwards;
