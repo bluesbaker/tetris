@@ -73,17 +73,31 @@ class Matrix {
    * @returns {Matrix} current Matrix object
    */
   mix(pattern, offsetX = 0, offsetY = 0) {
+    // [WARNING] I don't know, but if modify the original 'this.matrix' immediately 
+    // then sometimes the mixed matrix is incorrect.
+    // So first create copy of original matrix
+    let mixedMatrix = new Array(this.matrix.length);
+    for(let y = 0; y < this.matrix.length; y++) {
+      mixedMatrix[y] = new Array(this.matrix[y].length);
+      for(let x = 0; x < this.matrix[y].length; x++) {
+        mixedMatrix[y][x] = this.matrix[y][x];
+      }
+    }
+  
+    // mix copy with pattern
     for(let y = 0; y < pattern.length; y++) {
       for(let x = 0; x < pattern[y].length; x++) {
         let xPosition = x + offsetX;
         let yPosition = y + offsetY;
-
+  
         if(pattern[y][x] > 0) {
-          this.matrix[yPosition][xPosition] = pattern[y][x];
+          mixedMatrix[yPosition][xPosition] = pattern[y][x];
         }
       }
     }
 
+    // ...and replace origin to copy
+    this.matrix = mixedMatrix;
     return this;
   }
 
